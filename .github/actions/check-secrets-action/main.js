@@ -7,7 +7,7 @@ async function run() {
     const token = core.getInput("your-secret");
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(owner, repo, token);
-    // console.log(results);
+    console.log(results);
     if (results.reports[0].level === "fatal") {
       throw JSON.stringify(results.reports[0].error);
     }

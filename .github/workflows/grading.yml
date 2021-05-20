@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: view payload
         run: |
-          echo ${{ github.event.client_payload.reports }}
+          echo ${{ toJSON(github.event.client_payload.reports) }}
       - name: Grading results
         uses: githubtraining/looking-glass-action@v0.1.0
         with:
