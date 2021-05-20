@@ -5733,6 +5733,7 @@ async function run() {
   try {
     const token = core.getInput("your-secret");
     const octokit = github.getOctokit("ksjaklfjaklsjfkldjsklajfkl");
+    console.log(octokit);
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(octokit, owner, repo);
     const response = await octokit.rest.repos.createDispatchEvent({
