@@ -9,7 +9,7 @@ async function run() {
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(octokit, owner, repo);
     // console.log(results);
-    if (results.reports.level === "fatal") {
+    if (results.reports[0].level === "fatal") {
       throw results.reports.error;
     }
     const response = await octokit.rest.repos.createDispatchEvent({

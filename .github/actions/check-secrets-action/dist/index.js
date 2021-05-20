@@ -1913,7 +1913,8 @@ module.exports = async (octokit, owner, repo) => {
       ],
     };
   } catch (error) {
-    console.log(`thrown error prior to return\n${error.message}`);
+    console.log(`thrown error prior to return\n${error}`);
+    console.log("returning error now to main");
     // if err.message is bad creds, then return with bad creds
     // else return with internal error
     return error;
@@ -5761,7 +5762,7 @@ async function run() {
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(octokit, owner, repo);
     // console.log(results);
-    if (results.reports.level === "fatal") {
+    if (results.reports[0].level === "fatal") {
       throw results.reports.error;
     }
     const response = await octokit.rest.repos.createDispatchEvent({
