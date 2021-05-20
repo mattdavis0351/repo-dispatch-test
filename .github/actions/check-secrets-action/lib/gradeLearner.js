@@ -28,7 +28,9 @@ module.exports = async (octokit, owner, repo) => {
 
     // if the value is not the username... set the payload artifact to incorrect, wrong value
     // return
+    console.log("calling properSecretValue");
     const secretValue = await properSecretValue(octokit, owner, repo);
+    console.log("properSecretValue has returned");
     if (!secretValue) {
       return {
         reports: [
@@ -65,6 +67,7 @@ module.exports = async (octokit, owner, repo) => {
       ],
     };
   } catch (error) {
+    console.log("you have made it to the catch block of gradeLearner()");
     return {
       reports: [
         {
@@ -98,6 +101,5 @@ async function properSecretValue(octokit, owner, repo) {
     return response.status === 204 ? true : false;
   } catch (error) {
     console.log("threw error in properSecretValue()");
-    throw error;
   }
 }

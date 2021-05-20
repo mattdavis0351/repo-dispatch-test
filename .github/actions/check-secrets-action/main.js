@@ -7,7 +7,9 @@ async function run() {
   const octokit = github.getOctokit(token);
   const { owner, repo } = github.context.repo;
   try {
+    console.log("calling gradeLearner from main");
     const results = await gradeLearner(octokit, owner, repo);
+    console.log("calling grading dispatch event");
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
