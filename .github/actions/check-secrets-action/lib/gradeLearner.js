@@ -30,10 +30,10 @@ module.exports = async (octokit, owner, repo) => {
 
     // if the value is not the username... set the payload artifact to incorrect, wrong value
     // return00
-    console.log("calling properSecretValue");
-    const secretValue = await properSecretValue(octokit, owner, repo);
-    console.log(`response from properSecretValue\n${secretValue}`);
-    if (!secretValue) {
+
+    const secretValueStatusCode = await properSecretValue(octokit, owner, repo);
+
+    if (secretValueStatusCode !== 204) {
       return {
         reports: [
           {
@@ -41,11 +41,10 @@ module.exports = async (octokit, owner, repo) => {
             isCorrect: false,
             display_type: "actions",
             level: "warning",
-            msg: "Incorrect Solution",
+            msg: "Solution COULD be incorrect",
             error: {
-              expected:
-                "Your secret to contain a Personal Access Token with the repo scope.",
-              got: "Invalid token value",
+              expected: "HTTP response of 204",
+              got: `HTTP response of ${secretValueStatusCode} which could indicate an internal error.  Please open an issue at: https://github.com/githubtraining/lab-use-secrets and let us know!  Thank you`,
             },
           },
         ],
@@ -72,21 +71,7 @@ module.exports = async (octokit, owner, repo) => {
     console.log(`thrown error prior to return\n${error.message}`);
     // if err.message is bad creds, then return with bad creds
     // else return with internal error
-    return {
-      reports: [
-        {
-          filename: ".github/workflows/use-secrets.yml",
-          isCorrect: false,
-          display_type: "actions",
-          level: "fatal",
-          msg: "",
-          error: {
-            expected: "",
-            got: "An internal error occurred.  Please open an issue at: https://github.com/githubtraining/lab-use-secrets and let us know!  Thank you",
-          },
-        },
-      ],
-    };
+    return error;
   }
 };
 
@@ -102,9 +87,42 @@ async function properSecretValue(octokit, owner, repo) {
       repo,
       event_type: "token_check",
     });
-    console.log(response);
-    return response.status === 204 ? true : false;
+    // we don't get resp with bad token because createDisEvent throws error with bad creds
+    return response.status;
   } catch (error) {
-    throw error;
+    if (error.message !== "Bad credentials") {
+      throw {
+        reports: [
+          {
+            filename: ".github/workflows/use-secrets.yml",
+            isCorrect: false,
+            display_type: "actions",
+            level: "warning",
+            msg: "",
+            error: {
+              expected: "",
+              got: "An internal error occurred.  Please open an issue at: https://github.com/githubtraining/lab-use-secrets and let us know!  Thank you",
+            },
+          },
+        ],
+      };
+    } else {
+      throw {
+        reports: [
+          {
+            filename: ".github/workflows/use-secrets.yml",
+            isCorrect: false,
+            display_type: "actions",
+            level: "fatal",
+            msg: "Incorrect Solution",
+            error: {
+              expected:
+                "Your secret to contain a Personal Access Token with the repo scope.",
+              got: `${error.message}`,
+            },
+          },
+        ],
+      };
+    }
   }
 }
