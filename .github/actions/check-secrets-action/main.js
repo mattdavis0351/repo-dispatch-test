@@ -5,7 +5,7 @@ const gradeLearner = require("./lib/gradeLearner");
 async function run() {
   try {
     const token = core.getInput("your-secret");
-
+    const { owner, repo } = github.context.repo;
     const results = await gradeLearner(owner, repo, token);
     // console.log(results);
     if (results.reports[0].level === "fatal") {
@@ -13,7 +13,7 @@ async function run() {
     }
 
     const octokit = github.getOctokit(token);
-    const { owner, repo } = github.context.repo;
+
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
