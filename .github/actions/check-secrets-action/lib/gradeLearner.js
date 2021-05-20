@@ -1,15 +1,13 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 
-module.exports = async (octokit, owner, repo) => {
+module.exports = async (owner, repo, token) => {
   // if it has less than 1 secret... set the payload artifact to incorrect, no secret exists
   // return
   try {
-    console.log("gradeLeaner Started");
     const secretsContext = core.getInput("secrets-context");
     const keysFromCtx = Object.keys(JSON.parse(secretsContext));
 
-    console.log("calling repoHasExtraSecrets");
     if (!repoHasExtraSecrets(keysFromCtx)) {
       return {
         reports: [
@@ -31,7 +29,7 @@ module.exports = async (octokit, owner, repo) => {
     // if the value is not the username... set the payload artifact to incorrect, wrong value
     // return00
 
-    const secretValueStatusCode = await properSecretValue(octokit, owner, repo);
+    const secretValueStatusCode = await properSecretValue(token, owner, repo);
 
     if (secretValueStatusCode !== 204) {
       return {
@@ -80,9 +78,9 @@ function repoHasExtraSecrets(keysFromCtx) {
   return keysFromCtx.length > 1;
 }
 
-async function properSecretValue(octokit, owner, repo) {
+async function properSecretValue(token, owner, repo) {
   try {
-    console.log("properSecretValue has started, calling dispatch");
+    const octokit = github.getOctokit(token);
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
@@ -103,6 +101,22 @@ async function properSecretValue(octokit, owner, repo) {
             error: {
               expected: "",
               got: "An internal error occurred.  Please open an issue at: https://github.com/githubtraining/lab-use-secrets and let us know!  Thank you",
+            },
+          },
+        ],
+      };
+    } else if (error.message === "Parameter token or opts.auth is required") {
+      throw {
+        reports: [
+          {
+            filename: ".github/workflows/use-secrets.yml",
+            isCorrect: false,
+            display_type: "actions",
+            level: "warning",
+            msg: "Incorrect Solution",
+            error: {
+              expected: "We expected your secret to contain a value",
+              got: `A null value for the secret supplied at your-secret`,
             },
           },
         ],
