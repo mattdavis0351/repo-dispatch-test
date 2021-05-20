@@ -3,13 +3,13 @@ const github = require("@actions/github");
 const gradeLearner = require("./lib/gradeLearner");
 
 async function run() {
-  const token = core.getInput("your-secret");
-  const octokit = github.getOctokit(token);
-  const { owner, repo } = github.context.repo;
   try {
-    console.log("calling gradeLearner from main");
+    const token = core.getInput("your-secret");
+    console.log("trying to get an octokit");
+    const octokit = github.getOctokit(token);
+    console.log("done getting octokit");
+    const { owner, repo } = github.context.repo;
     const results = await gradeLearner(octokit, owner, repo);
-    console.log("calling grading dispatch event");
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,

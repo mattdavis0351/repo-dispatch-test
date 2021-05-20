@@ -1872,10 +1872,9 @@ module.exports = async (octokit, owner, repo) => {
     }
 
     // if the value is not the username... set the payload artifact to incorrect, wrong value
-    // return
-    console.log("calling properSecretValue");
+    // return00
     const secretValue = await properSecretValue(octokit, owner, repo);
-    console.log("properSecretValue has returned");
+
     if (!secretValue) {
       return {
         reports: [
@@ -1912,7 +1911,6 @@ module.exports = async (octokit, owner, repo) => {
       ],
     };
   } catch (error) {
-    console.log("you have made it to the catch block of gradeLearner()");
     return {
       reports: [
         {
@@ -1945,7 +1943,7 @@ async function properSecretValue(octokit, owner, repo) {
 
     return response.status === 204 ? true : false;
   } catch (error) {
-    console.log("threw error in properSecretValue()");
+    throw error;
   }
 }
 
@@ -5732,13 +5730,13 @@ const github = __webpack_require__(830);
 const gradeLearner = __webpack_require__(488);
 
 async function run() {
-  const token = core.getInput("your-secret");
-  const octokit = github.getOctokit(token);
-  const { owner, repo } = github.context.repo;
   try {
-    console.log("calling gradeLearner from main");
+    const token = core.getInput("your-secret");
+    console.log("trying to get an octokit");
+    const octokit = github.getOctokit(token);
+    console.log("done getting octokit");
+    const { owner, repo } = github.context.repo;
     const results = await gradeLearner(octokit, owner, repo);
-    console.log("calling grading dispatch event");
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
