@@ -11,12 +11,12 @@ jobs:
     steps:
       - name: view payload
         run: |
-          echo ${{ toJSON(github.event.client_payload.reports) }}
+          echo ${{ github.event.client_payload }}
       - name: Grading results
         uses: githubtraining/looking-glass-action@v0.1.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          feedback: ${{ toJSON(github.event.client_payload.reports) }}
+          feedback: ${{ github.event.client_payload.reports }}
   troubleshoot-activity:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
