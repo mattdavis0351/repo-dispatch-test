@@ -11,6 +11,7 @@ async function run() {
     console.log("calling gradeLearner");
     const results = await gradeLearner(octokit, owner, repo);
     console.log("gradeLearner completed");
+    console.log(results);
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
