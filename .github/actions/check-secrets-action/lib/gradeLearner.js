@@ -5,9 +5,11 @@ module.exports = async (octokit, owner, repo) => {
   // if it has less than 1 secret... set the payload artifact to incorrect, no secret exists
   // return
   try {
+    console.log("gradeLeaner Started");
     const secretsContext = core.getInput("secrets-context");
     const keysFromCtx = Object.keys(JSON.parse(secretsContext));
 
+    console.log("calling repoHasExtraSecrets");
     if (!repoHasExtraSecrets(keysFromCtx)) {
       return {
         reports: [
@@ -28,8 +30,9 @@ module.exports = async (octokit, owner, repo) => {
 
     // if the value is not the username... set the payload artifact to incorrect, wrong value
     // return00
+    console.log("calling properSecretValue");
     const secretValue = await properSecretValue(octokit, owner, repo);
-
+    console.log(`response from properSecretValue\n${secretValue}`);
     if (!secretValue) {
       return {
         reports: [
@@ -90,6 +93,7 @@ function repoHasExtraSecrets(keysFromCtx) {
 
 async function properSecretValue(octokit, owner, repo) {
   try {
+    console.log("properSecretValue has started, calling dispatch");
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
       repo,
