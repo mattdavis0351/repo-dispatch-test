@@ -10,7 +10,7 @@ async function run() {
     const results = await gradeLearner(octokit, owner, repo);
     // console.log(results);
     if (results.reports[0].level === "fatal") {
-      throw results.reports.error;
+      throw JSON.stringify(results.reports[0].error);
     }
     const response = await octokit.rest.repos.createDispatchEvent({
       owner,
