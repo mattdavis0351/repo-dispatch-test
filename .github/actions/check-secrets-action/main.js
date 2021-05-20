@@ -18,7 +18,7 @@ async function run() {
       owner,
       repo,
       event_type: "grading",
-      client_payload: results,
+      client_payload: JSON.stringify(results),
     });
     if (response.status !== 204) {
       throw `response status code was not 201\nreceieved code: ${response.status}`;
