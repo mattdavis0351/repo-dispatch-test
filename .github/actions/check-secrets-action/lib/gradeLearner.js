@@ -88,11 +88,16 @@ function repoHasExtraSecrets(keysFromCtx) {
 }
 
 async function properSecretValue(octokit, owner, repo) {
-  const response = await octokit.rest.repos.createDispatchEvent({
-    owner,
-    repo,
-    event_type: "token_check",
-  });
+  try {
+    const response = await octokit.rest.repos.createDispatchEvent({
+      owner,
+      repo,
+      event_type: "token_check",
+    });
 
-  return response.status === 204 ? true : false;
+    return response.status === 204 ? true : false;
+  } catch (error) {
+    core.info("threw error in properSecretValue()");
+    throw error;
+  }
 }
