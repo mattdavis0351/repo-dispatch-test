@@ -1874,7 +1874,7 @@ module.exports = async (octokit, owner, repo) => {
     // if the value is not the username... set the payload artifact to incorrect, wrong value
     // return
     const secretValue = await properSecretValue(octokit, owner, repo);
-    if (secretValue) {
+    if (!secretValue) {
       return {
         reports: [
           {
