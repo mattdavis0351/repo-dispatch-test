@@ -6,7 +6,7 @@ async function run() {
   try {
     const token = core.getInput("your-secret");
     console.log("trying to get an octokit");
-    const octokit = github.getOctokit("");
+    const octokit = github.getOctokit("ksjaklfjaklsjfkldjsklajfkl");
     console.log("done getting octokit");
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(octokit, owner, repo);
