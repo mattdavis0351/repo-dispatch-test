@@ -1,7 +1,7 @@
 name: grading workflow
 on:
   repository_dispatch:
-    types: ["bread"]
+    types: ["oranges"]
 
 jobs:
   use-lg:
