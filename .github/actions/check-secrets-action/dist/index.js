@@ -57,52 +57,6 @@ module.exports = require("https");
 
 /***/ }),
 
-/***/ 37:
-/***/ (function(__unusedmodule, exports) {
-
-"use strict";
-
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-function isObject(o) {
-  return Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor,prot;
-
-  if (isObject(o) === false) return false;
-
-  // If has modified constructor
-  ctor = o.constructor;
-  if (ctor === undefined) return true;
-
-  // If has modified prototype
-  prot = ctor.prototype;
-  if (isObject(prot) === false) return false;
-
-  // If constructor does not have an Object-specific method
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  }
-
-  // Most likely a plain Object
-  return true;
-}
-
-exports.isPlainObject = isPlainObject;
-
-
-/***/ }),
-
 /***/ 49:
 /***/ (function(module) {
 
@@ -145,7 +99,7 @@ function register(state, name, method, options) {
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var isPlainObject = __webpack_require__(37);
+var isPlainObject = __webpack_require__(128);
 var universalUserAgent = __webpack_require__(750);
 
 function lowercaseKeys(object) {
@@ -625,6 +579,52 @@ module.exports = require("os");
 
 /***/ }),
 
+/***/ 128:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(o) {
+  return Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor,prot;
+
+  if (isObject(o) === false) return false;
+
+  // If has modified constructor
+  ctor = o.constructor;
+  if (ctor === undefined) return true;
+
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObject(prot) === false) return false;
+
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+
+  // Most likely a plain Object
+  return true;
+}
+
+exports.isPlainObject = isPlainObject;
+
+
+/***/ }),
+
 /***/ 138:
 /***/ (function(__unusedmodule, exports) {
 
@@ -686,6 +686,52 @@ function checkBypass(reqUrl) {
     return false;
 }
 exports.checkBypass = checkBypass;
+
+
+/***/ }),
+
+/***/ 154:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(o) {
+  return Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor,prot;
+
+  if (isObject(o) === false) return false;
+
+  // If has modified constructor
+  ctor = o.constructor;
+  if (ctor === undefined) return true;
+
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObject(prot) === false) return false;
+
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+
+  // Most likely a plain Object
+  return true;
+}
+
+exports.isPlainObject = isPlainObject;
 
 
 /***/ }),
@@ -1380,7 +1426,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var request = __webpack_require__(812);
 var universalUserAgent = __webpack_require__(750);
 
-const VERSION = "4.6.1";
+const VERSION = "4.6.2";
 
 class GraphqlError extends Error {
   constructor(request, response) {
@@ -1790,6 +1836,111 @@ exports.isPaginatingEndpoint = isPaginatingEndpoint;
 exports.paginateRest = paginateRest;
 exports.paginatingEndpoints = paginatingEndpoints;
 //# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 488:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+const core = __webpack_require__(896);
+const github = __webpack_require__(830);
+
+module.exports = async (octokit, owner, repo) => {
+  // if it has less than 1 secret... set the payload artifact to incorrect, no secret exists
+  // return
+  try {
+    const secretsContext = core.getInput("secrets-context");
+    const keysFromCtx = Object.keys(JSON.parse(secretsContext));
+
+    if (!repoHasExtraSecrets(keysFromCtx)) {
+      return {
+        reports: [
+          {
+            filename: ".github/workflows/use-secrets.yml",
+            isCorrect: false,
+            display_type: "actions",
+            level: "warning",
+            msg: "Incorrect Solution",
+            error: {
+              expected: "Your repository should contain at least one secret.",
+              got: "Your repository does not contain any secrets",
+            },
+          },
+        ],
+      };
+    }
+
+    // if the value is not the username... set the payload artifact to incorrect, wrong value
+    // return
+    const secretValue = await properSecretValue(octokit, owner, repo);
+    if (secretValue) {
+      return {
+        reports: [
+          {
+            filename: ".github/workflows/use-secrets.yml",
+            isCorrect: false,
+            display_type: "actions",
+            level: "warning",
+            msg: "Incorrect Solution",
+            error: {
+              expected:
+                "Your secret to contain a Personal Access Token with the repo scope.",
+              got: "Invalid token value",
+            },
+          },
+        ],
+      };
+    }
+
+    // if all 3 things are right then set artifcat to success
+    return {
+      reports: [
+        {
+          filename: ".github/workflows/use-secrets.yml",
+          isCorrect: true,
+          display_type: "actions",
+          level: "info",
+          msg: "Correct Solution",
+          error: {
+            expected: "",
+            got: "",
+          },
+        },
+      ],
+    };
+  } catch (error) {
+    return {
+      reports: [
+        {
+          filename: ".github/workflows/use-secrets.yml",
+          isCorrect: false,
+          display_type: "actions",
+          level: "fatal",
+          msg: "",
+          error: {
+            expected: "",
+            got: "An internal error occurred.  Please open an issue at: https://github.com/githubtraining/lab-use-secrets and let us know!  Thank you",
+          },
+        },
+      ],
+    };
+  }
+};
+
+function repoHasExtraSecrets(keysFromCtx) {
+  return keysFromCtx.length > 1;
+}
+
+async function properSecretValue(octokit, owner, repo) {
+  const response = await octokit.rest.repos.createDispatchEvent({
+    owner,
+    repo,
+    event_type: "token_check",
+  });
+
+  return response.status === 204 ? true : false;
+}
 
 
 /***/ }),
@@ -3499,7 +3650,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -4174,7 +4325,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var endpoint = __webpack_require__(58);
 var universalUserAgent = __webpack_require__(750);
-var isPlainObject = __webpack_require__(37);
+var isPlainObject = __webpack_require__(154);
 var nodeFetch = _interopDefault(__webpack_require__(558));
 var requestError = __webpack_require__(616);
 
@@ -5252,6 +5403,7 @@ const Endpoints = {
     getLatestRelease: ["GET /repos/{owner}/{repo}/releases/latest"],
     getPages: ["GET /repos/{owner}/{repo}/pages"],
     getPagesBuild: ["GET /repos/{owner}/{repo}/pages/builds/{build_id}"],
+    getPagesHealthCheck: ["GET /repos/{owner}/{repo}/pages/health"],
     getParticipationStats: ["GET /repos/{owner}/{repo}/stats/participation"],
     getPullRequestReviewProtection: ["GET /repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews"],
     getPunchCardStats: ["GET /repos/{owner}/{repo}/stats/punch_card"],
@@ -5460,7 +5612,7 @@ const Endpoints = {
   }
 };
 
-const VERSION = "4.15.1";
+const VERSION = "5.1.1";
 
 function endpointsToMethods(octokit, endpointsMap) {
   const newMethods = {};
@@ -5545,12 +5697,20 @@ function decorate(octokit, scope, methodName, defaults, decorations) {
 
 function restEndpointMethods(octokit) {
   const api = endpointsToMethods(octokit, Endpoints);
+  return {
+    rest: api
+  };
+}
+restEndpointMethods.VERSION = VERSION;
+function legacyRestEndpointMethods(octokit) {
+  const api = endpointsToMethods(octokit, Endpoints);
   return _objectSpread2(_objectSpread2({}, api), {}, {
     rest: api
   });
 }
-restEndpointMethods.VERSION = VERSION;
+legacyRestEndpointMethods.VERSION = VERSION;
 
+exports.legacyRestEndpointMethods = legacyRestEndpointMethods;
 exports.restEndpointMethods = restEndpointMethods;
 //# sourceMappingURL=index.js.map
 
@@ -5562,25 +5722,23 @@ exports.restEndpointMethods = restEndpointMethods;
 
 const core = __webpack_require__(896);
 const github = __webpack_require__(830);
+const gradeLearner = __webpack_require__(488);
 
 async function run() {
+  const token = core.getInput("your-secret");
+  const octokit = github.getOctokit(token);
+  const { owner, repo } = github.context.repo;
   try {
-    const token = core.getInput("repo_token");
-    const octokit = github.getOctokit(token);
-    const ctx = github.context;
-
-    const requestParams = {
-      owner: ctx.repo.owner,
-      repo: ctx.repo.repo,
-      event_type: "bread",
-    };
-
-    const res = await octokit.repos.createDispatchEvent(requestParams);
-    if (res.status !== 204) {
-      throw `response status code was not 204\ngot: ${res.status}`;
+    const results = await gradeLearner(octokit, owner, repo);
+    const response = await octokit.rest.repos.createDispatchEvent({
+      owner,
+      repo,
+      event_type: "grading",
+      client_payload: results,
+    });
+    if (response.status !== 204) {
+      throw `response status code was not 201\nreceieved code: ${response.status}`;
     }
-    core.info("response is fine, check the other workflow");
-    return;
   } catch (error) {
     core.setFailed(error);
   }
@@ -5611,7 +5769,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -5722,7 +5880,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -6023,6 +6181,7 @@ class Context {
      * Hydrate the context from the environment
      */
     constructor() {
+        var _a, _b, _c;
         this.payload = {};
         if (process.env.GITHUB_EVENT_PATH) {
             if (fs_1.existsSync(process.env.GITHUB_EVENT_PATH)) {
@@ -6042,6 +6201,9 @@ class Context {
         this.job = process.env.GITHUB_JOB;
         this.runNumber = parseInt(process.env.GITHUB_RUN_NUMBER, 10);
         this.runId = parseInt(process.env.GITHUB_RUN_ID, 10);
+        this.apiUrl = (_a = process.env.GITHUB_API_URL) !== null && _a !== void 0 ? _a : `https://api.github.com`;
+        this.serverUrl = (_b = process.env.GITHUB_SERVER_URL) !== null && _b !== void 0 ? _b : `https://github.com`;
+        this.graphqlUrl = (_c = process.env.GITHUB_GRAPHQL_URL) !== null && _c !== void 0 ? _c : `https://api.github.com/graphql`;
     }
     get issue() {
         const payload = this.payload;
