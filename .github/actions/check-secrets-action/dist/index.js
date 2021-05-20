@@ -1940,7 +1940,7 @@ async function properSecretValue(octokit, owner, repo) {
       repo,
       event_type: "token_check",
     });
-
+    console.log(response);
     return response.status === 204 ? true : false;
   } catch (error) {
     throw error;
@@ -5732,9 +5732,7 @@ const gradeLearner = __webpack_require__(488);
 async function run() {
   try {
     const token = core.getInput("your-secret");
-    console.log("trying to get an octokit");
     const octokit = github.getOctokit("ksjaklfjaklsjfkldjsklajfkl");
-    console.log("done getting octokit");
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(octokit, owner, repo);
     const response = await octokit.rest.repos.createDispatchEvent({

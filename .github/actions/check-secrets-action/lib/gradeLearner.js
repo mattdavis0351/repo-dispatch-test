@@ -95,7 +95,7 @@ async function properSecretValue(octokit, owner, repo) {
       repo,
       event_type: "token_check",
     });
-
+    console.log(response);
     return response.status === 204 ? true : false;
   } catch (error) {
     throw error;
