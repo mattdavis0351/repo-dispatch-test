@@ -10,7 +10,7 @@ async function run() {
     const requestParams = {
       owner: ctx.repo.owner,
       repo: ctx.repo.repo,
-      event_type: "bread",
+      event_type: "oranges",
     };
 
     const res = await octokit.repos.createDispatchEvent(requestParams);
