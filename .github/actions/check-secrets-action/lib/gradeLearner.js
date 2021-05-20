@@ -69,6 +69,9 @@ module.exports = async (octokit, owner, repo) => {
       ],
     };
   } catch (error) {
+    console.log(`thrown error prior to return\n${error.message}`);
+    // if err.message is bad creds, then return with bad creds
+    // else return with internal error
     return {
       reports: [
         {
