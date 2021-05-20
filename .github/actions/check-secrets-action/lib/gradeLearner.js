@@ -97,7 +97,7 @@ async function properSecretValue(octokit, owner, repo) {
 
     return response.status === 204 ? true : false;
   } catch (error) {
-    core.info("threw error in properSecretValue()");
+    console.log("threw error in properSecretValue()");
     throw error;
   }
 }
