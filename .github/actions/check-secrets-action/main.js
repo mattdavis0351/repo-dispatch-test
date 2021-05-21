@@ -24,7 +24,7 @@ async function run() {
       throw `response status code was not 201\nreceieved code: ${response.status}`;
     }
   } catch (error) {
-    core.setFailed(error);
+    core.setFailed(JSON.stringify(error));
   }
 }
 
