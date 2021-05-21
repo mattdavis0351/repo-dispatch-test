@@ -106,9 +106,7 @@ async function properSecretValue(token, owner, repo) {
           },
         ],
       };
-    } else if (
-      error.message === "Error: Parameter token or opts.auth is required"
-    ) {
+    } else if (error.message === "Parameter token or opts.auth is required") {
       throw {
         reports: [
           {
