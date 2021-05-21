@@ -90,7 +90,10 @@ async function properSecretValue(token, owner, repo) {
     return response.status;
   } catch (error) {
     console.log(error.message);
-    if (error.message !== "Bad credentials") {
+    if (
+      error.message !== "Bad credentials" &&
+      error.message === "Parameter token or opts.auth is required"
+    ) {
       throw {
         reports: [
           {
@@ -114,10 +117,10 @@ async function properSecretValue(token, owner, repo) {
             isCorrect: false,
             display_type: "actions",
             level: "fatal",
-            msg: "Invalid token",
+            msg: "Incorrect solution",
             error: {
               expected: "We expected your secret to contain a value",
-              got: `A null value for the secret supplied at your-secret`,
+              got: `A null value for the secret supplied at your-secret, which most likely means the secret doesn't exist.`,
             },
           },
         ],
