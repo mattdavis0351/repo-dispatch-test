@@ -92,7 +92,7 @@ async function properSecretValue(token, owner, repo) {
     console.log(error.message);
     if (
       error.message !== "Bad credentials" &&
-      error.message === "Parameter token or opts.auth is required"
+      error.message !== "Parameter token or opts.auth is required"
     ) {
       throw {
         reports: [
