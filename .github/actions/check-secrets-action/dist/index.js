@@ -1958,7 +1958,7 @@ async function properSecretValue(token, owner, repo) {
             isCorrect: false,
             display_type: "actions",
             level: "warning",
-            msg: "Incorrect Solution",
+            msg: "Invalid token",
             error: {
               expected: "We expected your secret to contain a value",
               got: `A null value for the secret supplied at your-secret`,
@@ -5775,7 +5775,10 @@ async function run() {
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(owner, repo, token);
     console.log(results);
-    if (results.reports[0].level === "fatal") {
+    if (
+      results.reports[0].level === "fatal" ||
+      results.reports[0].msg === "Invalid token"
+    ) {
       throw JSON.stringify(results.reports[0].error);
     }
 

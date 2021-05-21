@@ -8,7 +8,10 @@ async function run() {
     const { owner, repo } = github.context.repo;
     const results = await gradeLearner(owner, repo, token);
     console.log(results);
-    if (results.reports[0].level === "fatal") {
+    if (
+      results.reports[0].level === "fatal" ||
+      results.reports[0].msg === "Invalid token"
+    ) {
       throw JSON.stringify(results.reports[0].error);
     }
 
