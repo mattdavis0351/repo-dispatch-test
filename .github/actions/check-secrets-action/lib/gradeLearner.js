@@ -96,7 +96,7 @@ async function properSecretValue(token, owner, repo) {
             filename: ".github/workflows/use-secrets.yml",
             isCorrect: false,
             display_type: "actions",
-            level: "warning",
+            level: "fatal",
             msg: "",
             error: {
               expected: "",
@@ -114,7 +114,7 @@ async function properSecretValue(token, owner, repo) {
             filename: ".github/workflows/use-secrets.yml",
             isCorrect: false,
             display_type: "actions",
-            level: "warning",
+            level: "fatal",
             msg: "Invalid token",
             error: {
               expected: "We expected your secret to contain a value",
