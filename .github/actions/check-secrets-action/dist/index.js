@@ -5779,7 +5779,7 @@ async function run() {
       results.reports[0].level === "fatal" ||
       results.reports[0].msg === "Invalid token"
     ) {
-      throw JSON.stringify(results.reports[0].error);
+      throw `We expected: ${results.reports[0].error.expected}\nWe received: ${results.reports[0].error.got}`;
     }
 
     const octokit = github.getOctokit(token);
@@ -5794,7 +5794,7 @@ async function run() {
       throw `response status code was not 201\nreceieved code: ${response.status}`;
     }
   } catch (error) {
-    core.setFailed(JSON.stringify(error));
+    core.setFailed(error);
   }
 }
 
