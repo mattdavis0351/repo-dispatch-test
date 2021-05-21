@@ -1934,6 +1934,7 @@ async function properSecretValue(token, owner, repo) {
     // we don't get resp with bad token because createDisEvent throws error with bad creds
     return response.status;
   } catch (error) {
+    console.log(error.message);
     if (error.message !== "Bad credentials") {
       throw {
         reports: [
